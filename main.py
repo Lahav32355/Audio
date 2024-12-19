@@ -7,37 +7,32 @@ import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
 
-#Todo:
+#Todo:Record yourself speaking
 def record_audio(filename, duration=10, fs=44100):
     print("Recording...")
-    recording = sd.rec(int(duration * fs), samplerate=fs, channels=2)  # Stereo
-    sd.wait()  # Wait until recording is finished
-    write(filename, fs, recording)  # Save as WAV file
+    recording = sd.rec(int(duration * fs), samplerate=fs, channels=2)
+    sd.wait()
+    write(filename, fs, recording)
     print(f"Recording saved to {filename}")
 
 
 def save_audio(filename, fs, data):
-    # Ensure the data is in the correct format (float32)
     wavfile.write(filename, fs, data.astype(np.float32))
     print(f"Resampled audio saved to {filename}")
 
 
-
 def load_audio(filename):
-    # Load the audio file
+    # Load the audio file we Record
     sampling_freq, data = wavfile.read(filename)
-    print(f"Original Sampling Frequency: {sampling_freq} Hz")
+    print(f"Sampling Frequency: {sampling_freq} Hz")
 
     # Check if stereo
     if len(data.shape) == 2:
         print("Audio is Stereo")
-        # Option 1: Select the first channel
-        mono_data = data[:, 0]
+        mono_data = data[:, 0]  #Select the first channel
     else:
         print("Audio is Mono")
         mono_data = data
-
-    print(f"Sampling Frequency: {sampling_freq} Hz")
 
     return sampling_freq, mono_data
 
@@ -150,15 +145,7 @@ def plot_audio_and_spectrogram(audio_path):
 
 
 if __name__ == "__main__":
-    record_audio("speech_recording.wav")
-    #fs_original, audio_original = load_audio("speech_recording.wav")
-    #plot_audio_and_spectrogram("speech_recording.wav")
+    #record_audio("speech_recording.wav")
+    counting_fs, counting_audio = load_audio("speech_recording.wav")
 
-    # Load the audio file
-    #sampling_freq, data = wavfile.read('speech_recording.wav')
-
-    #fs_target = 32000  # 32 kHz
-    #audio_resampled = resample_audio(audio_original, fs_original, target_fs=fs_target)
-
-    # (Optional) Save the resampled audio to a new file
-    #save_audio("speech_recording_resampled.wav", fs_target, audio_resampled)
+    
