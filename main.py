@@ -7,13 +7,20 @@ import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+#Todo:
 def record_audio(filename, duration=10, fs=44100):
     print("Recording...")
     recording = sd.rec(int(duration * fs), samplerate=fs, channels=2)  # Stereo
     sd.wait()  # Wait until recording is finished
     write(filename, fs, recording)  # Save as WAV file
     print(f"Recording saved to {filename}")
+
+
+def save_audio(filename, fs, data):
+    # Ensure the data is in the correct format (float32)
+    wavfile.write(filename, fs, data.astype(np.float32))
+    print(f"Resampled audio saved to {filename}")
+
 
 
 def load_audio(filename):
@@ -38,25 +45,27 @@ def load_audio(filename):
 def resample_audio(audio, original_fs, target_fs=32000):
     # Cast audio to np.float32
     audio_float32 = audio.astype(np.float32)
-    print("Audio cast to np.float32.")
-
     # Calculate the number of samples after resampling
     duration = len(audio_float32) / original_fs
     num_samples_resampled = int(duration * target_fs)
-    print(f"Resampling from {original_fs} Hz to {target_fs} Hz.")
-    print(f"Original number of samples: {len(audio_float32)}")
-    print(f"Resampled number of samples: {num_samples_resampled}")
-
     # Perform resampling
     audio_resampled = resample(audio_float32, num_samples_resampled)
     print("Resampling completed.")
-
     return audio_resampled
 
-def save_audio(filename, fs, data):
-    # Ensure the data is in the correct format (float32)
-    wavfile.write(filename, fs, data.astype(np.float32))
-    print(f"Resampled audio saved to {filename}")
+#Todo:
+def downsample():
+    pass
+
+
+#Todo:
+def plotaudio():
+    pass
+
+#Todo:
+def addnoise():
+    pass
+
 
 
 
@@ -128,6 +137,8 @@ def plot_audio_and_spectrogram(audio_path):
     # Display the figure
     plt.tight_layout()
     plt.show()
+
+
 
 
 
