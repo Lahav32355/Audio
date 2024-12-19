@@ -134,12 +134,11 @@ def resample_audio(audio, original_fs, target_fs=32000):
     # Perform resampling
     audio_resampled = resample(audio_float32, num_samples_resampled)
     print("Resampling completed.")
-    return audio_resampled
+    return audio_resampled , target_fs
 
-#Todo:
-def downsample():
-    pass
-
+def downsample_manual(audio , target_fs = 16000):
+    downsample_audio = audio[::2]
+    return downsample_audio , target_fs
 
 #Todo:
 def plotaudio():
@@ -148,7 +147,7 @@ def plotaudio():
 #Todo:
 def add_noise(audio):
     noise_fs, noise = load_audio("stationary_noise.wav")
-    resampled_noise = resample_audio(noise, noise_fs, 16000)
+    resampled_noise, _ = resample_audio(noise, noise_fs, 16000)
     if len(resampled_noise) < len(audio):
         return audio[:len(resampled_noise)] + resampled_noise
     return audio + resampled_noise[:len(audio)]  # Add noise to the audio
@@ -231,12 +230,24 @@ def plot_audio_and_spectrogram(audio_path):
 
 
 
-
+#Todo:Cheking the order
 if __name__ == "__main__":
+    # question 1(a)
     counting_fs, counting_audio = load_audio("speech_recording.wav")
-    resampled_audio = resample_audio(counting_audio, counting_fs, 16000)
+
+    # question 1(b)
+    resample_audio_32k ,fs_32k = resample_audio(counting_audio , counting_fs)
+
+    # question 1(c)
+    resample_audio_manual , fs_16k = downsample_manual(resample_audio_32k)
+    resample_audio_16k , fs_16k = resample_audio(counting_audio , counting_fs , 16000)
+
     # question 2
-    #record_audio("speech_recording.wav")
-    new_audio = add_noise(counting_audio)
+    new_audio = add_noise(resample_audio_16k)
     # save_audio("noisy_speech.wav", counting_fs, new_audio)
-    plot_audio_analysis(counting_audio, 16000)
+    plot_audio_analysis(counting_audio, fs_16k)
+
+
+
+
+
