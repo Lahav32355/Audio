@@ -55,9 +55,6 @@ def downsample_manual(audio , target_fs = 16000):
     downsample_audio = audio[::2]
     return downsample_audio , target_fs
 
-#Todo:
-def plotaudio():
-    pass
 
 
 def add_noise(audio):
@@ -66,6 +63,9 @@ def add_noise(audio):
     if len(resampled_noise) < len(audio):
         return audio[:len(resampled_noise)] + resampled_noise
     return audio + resampled_noise[:len(audio)]  # Add noise to the audio
+
+def plots_audio(audio ,fs ):
+    pass
 
 
 
@@ -81,10 +81,25 @@ if __name__ == "__main__":
     resample_audio_manual , fs_16k = downsample_manual(resample_audio_32k)
     resample_audio_16k , fs_16k = resample_audio(counting_audio , counting_fs , 16000)
 
-    # question 2
-    new_audio = add_noise(resample_audio_16k)
-    # save_audio("noisy_speech.wav", counting_fs, new_audio)
-    plot_audio_analysis(counting_audio, fs_16k)
+    # question 2(a),2(b)
+    noise_audio = add_noise(resample_audio_16k)
+    save_audio("noisy_speech.wav", fs_16k, noise_audio)
+
+    # question 2(c)
+
+    #plot audio
+    plots_audio(resample_audio_16k , fs_16k)
+
+    #plot noise
+    noise_fs, noise = load_audio("stationary_noise.wav")
+    plots_audio(noise , noise_fs)
+
+    # plot noise_audio
+    plots_audio(noise_audio , fs_16k)
+
+
+
+
 
 
 
