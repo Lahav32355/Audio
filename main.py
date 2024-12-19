@@ -4,8 +4,96 @@ from scipy.io import wavfile
 from scipy.signal import resample
 import librosa
 import librosa.display
+import librosa.feature
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+def plot_audio(audio, sr, ax):
+    """Plots the raw audio waveform."""
+    time = np.linspace(0, len(audio) / sr, len(audio))
+    ax.plot(time, audio)
+    ax.set_title("Audio Waveform")
+    ax.set_xlabel("Time [sec]")
+    ax.set_ylabel("Amplitude")
+
+
+def plot_spectrogram(audio, sr, ax):
+    """Plots the spectrogram with the pitch contour overlaid."""
+    # Calculate the spectrogram
+    hop_length = int(sr * 0.01)  # 10ms
+    n_fft = int(sr * 0.02)  # 20ms
+    S = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length))
+    S_db = librosa.amplitude_to_db(S, ref=np.max)
+
+    # Plot the spectrogram
+    img = librosa.display.specshow(S_db, sr=sr, hop_length=hop_length, x_axis='time', y_axis='hz', ax=ax)
+    ax.set_title("Spectrogram")
+    plt.colorbar(img, ax=ax, format="%+2.0f dB")
+
+    # Pitch contour using librosa.pyin
+    f0, voiced_flag, voiced_prob = librosa.pyin(
+        audio, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'),
+        sr=sr, hop_length=hop_length
+    )
+
+    # Overlay pitch contour
+    valid_frames = ~np.isnan(f0)  # Non-NaN values indicate voiced frames
+    times = librosa.frames_to_time(np.arange(len(f0)), sr=sr, hop_length=hop_length)
+    ax.plot(times[valid_frames], f0[valid_frames], color='red', label='Pitch Contour')
+    ax.legend()
+
+
+def plot_mel_spectrogram(audio, sr, ax):
+    """Plots the Mel-spectrogram."""
+    hop_length = int(sr * 0.01)  # 10ms
+    n_fft = int(sr * 0.02)  # 20ms
+    mel_spec = librosa.feature.melspectrogram(y=audio, sr=sr, n_fft=n_fft, hop_length=hop_length, n_mels=128)
+    mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
+
+    img = librosa.display.specshow(mel_spec_db, sr=sr, hop_length=hop_length, x_axis='time', y_axis='mel', ax=ax)
+    ax.set_title("Mel-Spectrogram")
+    plt.colorbar(img, ax=ax, format="%+2.0f dB")
+
+
+def plot_energy_and_rms(audio, sr, ax):
+    """Plots energy and RMS."""
+    frame_length = int(sr * 0.02)  # 20ms
+    hop_length = int(sr * 0.01)  # 10ms
+
+    # Energy
+    energy = np.array([
+        np.sum(np.abs(audio[i:i + frame_length]) ** 2)
+        for i in range(0, len(audio) - frame_length + 1, hop_length)
+    ])
+
+    # RMS
+    rms = librosa.feature.rms(y=audio, frame_length=frame_length, hop_length=hop_length).flatten()
+
+    # Time axis for plotting
+    times = librosa.frames_to_time(range(len(energy)), sr=sr, hop_length=hop_length)
+
+    ax.plot(times, energy, label="Energy", alpha=0.7)
+    ax.plot(times, rms, label="RMS", alpha=0.7)
+    ax.set_title("Energy and RMS")
+    ax.set_xlabel("Time [sec]")
+    ax.set_ylabel("Amplitude")
+    ax.legend()
+
+
+def plot_audio_analysis(audio, sr):
+    """Main function to plot all subplots together."""
+    fig, axs = plt.subplots(4, 1, figsize=(10, 15))
+
+    plot_audio(audio, sr, axs[0])
+    plot_spectrogram(audio, sr, axs[1])
+    plot_mel_spectrogram(audio, sr, axs[2])
+    plot_energy_and_rms(audio, sr, axs[3])
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 #Todo:Record yourself speaking
 def record_audio(filename, duration=10, fs=44100):
@@ -62,7 +150,7 @@ def add_noise(audio):
     noise_fs, noise = load_audio("stationary_noise.wav")
     resampled_noise = resample_audio(noise, noise_fs, 16000)
     if len(resampled_noise) < len(audio):
-        audio[:len(resampled_noise)] + resampled_noise
+        return audio[:len(resampled_noise)] + resampled_noise
     return audio + resampled_noise[:len(audio)]  # Add noise to the audio
 
 
@@ -145,7 +233,10 @@ def plot_audio_and_spectrogram(audio_path):
 
 
 if __name__ == "__main__":
-    #record_audio("speech_recording.wav")
     counting_fs, counting_audio = load_audio("speech_recording.wav")
-
-    
+    resampled_audio = resample_audio(counting_audio, counting_fs, 16000)
+    # question 2
+    #record_audio("speech_recording.wav")
+    new_audio = add_noise(counting_audio)
+    # save_audio("noisy_speech.wav", counting_fs, new_audio)
+    plot_audio_analysis(counting_audio, 16000)
