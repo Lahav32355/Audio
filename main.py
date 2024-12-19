@@ -63,8 +63,14 @@ def plotaudio():
     pass
 
 #Todo:
-def addnoise():
-    pass
+def add_noise(audio):
+    noise_fs, noise = load_audio("stationary_noise.wav")
+    resampled_noise = resample_audio(noise, noise_fs, 16000)
+    if len(resampled_noise) < len(audio):
+        audio[:len(resampled_noise)] + resampled_noise
+    return audio + resampled_noise[:len(audio)]  # Add noise to the audio
+
+
 
 
 
