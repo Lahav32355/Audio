@@ -6,6 +6,7 @@ import librosa.display
 import librosa.feature
 import matplotlib.pyplot as plt
 import numpy as np
+import pyworld as pw
 
 def normalize_audio(data):
     """Normalize audio data to the range [-1,1]."""
@@ -68,14 +69,51 @@ def add_noise(audio):
     noisy = audio[:min_len] + resampled_noise[:min_len]
     return noisy
 
-def plots_audio(audio, fs):
+def plots_audio(audio, fs, filename=None):
+
     time = np.linspace(0, len(audio) / fs, num=len(audio))
     plt.figure(figsize=(10, 4))
     plt.plot(time, audio, label="Waveform")
     plt.xlabel("Time (seconds)")
     plt.ylabel("Amplitude")
-    plt.title("Audio Waveform")
+
+    if filename is not None:
+        plt.title(f"Audio Waveform for: {filename}")
+    else:
+        plt.title("Audio Waveform")
+
     plt.grid()
+    plt.legend(loc="upper right")
+    plt.show()
+
+def plot_spectrogram_with_pitch(audio, fs, filename=None):
+    n_fft = 1024
+    hop_length = 256
+    D = np.abs(librosa.stft(audio, n_fft=n_fft, hop_length=hop_length))
+    S_db = librosa.amplitude_to_db(D, ref=np.max)
+
+    # Convert audio to float64 for pyworld
+    audio_64 = audio.astype(np.float64)
+    frame_period = (hop_length / fs) * 1000.0  # in ms
+    f0, t = pw.harvest(audio_64, fs, f0_floor=50.0, f0_ceil=500.0, frame_period=frame_period)
+    f0[f0 == 0] = np.nan
+
+    time_stft = np.arange(S_db.shape[1]) * (hop_length / fs)
+
+    plt.figure(figsize=(10, 6))
+    plt.imshow(S_db, aspect='auto', origin='lower',
+               extent=[time_stft[0], time_stft[-1], 0, fs/2], cmap='magma')
+    plt.colorbar(format="%+2.f dB")
+
+    plt.plot(t, f0, color='red', linewidth=2, label="Pitch contour (F0)")
+
+    if filename is not None:
+        plt.title(f"Spectrogram & Pitch for: {filename}")
+    else:
+        plt.title("Spectrogram & Pitch")
+
+    plt.xlabel("Time (s)")
+    plt.ylabel("Frequency (Hz)")
     plt.legend(loc="upper right")
     plt.show()
 
@@ -97,7 +135,13 @@ if __name__ == "__main__":
     #save_audio("noisy_speech.wav", fs_16k, noise_audio)
 
     # Optional Plots:
-    plots_audio(resample_audio_16k, fs_16k)
-    noise_fs, noise = load_audio("stationary_noise.wav")
-    plots_audio(noise, noise_fs)
-    plots_audio(noise_audio, fs_16k)
+    #plots_audio(resample_audio_16k, fs_16k , filename="speech_recording.wav")
+    #noise_fs, noise = load_audio("stationary_noise.wav")
+    #plots_audio(noise, noise_fs ,filename="stationary_noise.wav")
+    #plots_audio(noise_audio, fs_16k,filename="noisy_speech.wav")
+
+    # Spectrogram with pitch for the speech recording
+    plot_spectrogram_with_pitch(resample_audio_16k, fs_16k, filename="speech_recording.wav")
+
+    # Spectrogram with pitch for the noisy speech
+    plot_spectrogram_with_pitch(noise_audio, fs_16k, filename="noisy_speech.wav")
