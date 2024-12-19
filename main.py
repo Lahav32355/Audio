@@ -65,7 +65,18 @@ def add_noise(audio):
     return audio + resampled_noise[:len(audio)]  # Add noise to the audio
 
 def plots_audio(audio ,fs ):
-    pass
+    # Create a time axis in seconds
+    time = np.linspace(0, len(audio) / fs, num=len(audio))
+
+    # Plot the waveform
+    plt.figure(figsize=(10, 4))
+    plt.plot(time, audio, label="Waveform")
+    plt.xlabel("Time (seconds)")
+    plt.ylabel("Amplitude")
+    plt.title("Audio Waveform")
+    plt.grid()
+    plt.legend(loc="upper right")
+    plt.show()
 
 
 
