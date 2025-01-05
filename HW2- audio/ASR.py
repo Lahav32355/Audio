@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
+
 # Check if the sampling rate is 16kHz
 def checkfs(filepath):
     _, fs = librosa.load(filepath, sr=None)
@@ -51,7 +52,8 @@ def dtw(mel_data, mel_representative):
 
     for i in range(distances_matrix.shape[0]):
         for j in range(distances_matrix.shape[1]):
-            distances_matrix[i, j] = np.linalg.norm(mel_representative[:, i] - mel_data[:, j])  
+            distances_matrix[i, j] = np.linalg.norm(mel_representative[:, i] - mel_data[:, j])
+    print(distances_matrix)
     dtw_matrix = np.zeros(distances_matrix.shape)
     dtw_matrix[0, 0] = distances_matrix[0, 0]
     for i in range(0 , dtw_matrix.shape[0]):
@@ -74,6 +76,16 @@ def dtw(mel_data, mel_representative):
                 else:
                     path.append((i-1, j-1))
     return dtw_matrix[-1,-1], path
+
+
+def create_training_dist_matrix(train_db, ref_db):
+    dist_matrix = np.zeros((4, 10, 10))
+    names = set([key[:-6] for key in train_db.keys()])
+    ref = list(ref_db.keys())[0][:-6]
+    for i, name in enumerate(names):
+        for j in range(10):
+            dist_matrix[i, j, :] = [dtw(train_db[f"{name}_{j}.wav"], ref_db[f"{ref}_{k}.wav"])[0] for k in range(10)]
+    return dist_matrix
 
 
 def collapse_function_B(seq):
@@ -214,24 +226,16 @@ def main():
     plot_matrix(backtrace_matrix , row_labels , col_lables)
 
 
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-
-
-
 # Run your main
 if __name__ == "__main__":
-    main()
+    # main()
+    dirpath_Training = 'audio_files/Training_Set'
+    dirpath_Testing = 'audio_files/Evaluation_Set'
+    dirpath_Representative = 'audio_files/Representative'
+    Training_database = get_mels_dir(dirpath_Training)
+    Testing_database = get_mels_dir(dirpath_Testing)
+    reference_database = get_mels_dir(dirpath_Representative)
+    dist_matrix = create_training_dist_matrix(Training_database, reference_database)
+    print(dist_matrix)
     print("Done")
  
