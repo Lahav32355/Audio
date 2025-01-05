@@ -350,10 +350,10 @@ def main():
     plot_matrix(alpha_matrix , row_labels , path_lables , "Forward_Algorithm_plots/Q6d_aligned_sequence.png")
 
     # Question 6 (e): plot the backtrace matrix, and the selected path.
-<<<<<<< HEAD
+
     col_lables = [i for i in range(0 , pred.shape[0])]
     plot_matrix(backtrace_matrix , row_labels , col_lables)
-=======
+
     char_matrix = np.empty_like(backtrace_matrix, dtype=object)
     for i in range(backtrace_matrix.shape[0]):
         for j in range(backtrace_matrix.shape[1]):
@@ -379,24 +379,16 @@ def main():
     #Question 7 : force_align.pkl
     data = pkl.load(open('$PATH', 'rb'))
 
-
-
-    
-    
-
->>>>>>> origin/main
-
-
 # Run your main
 if __name__ == "__main__":
     # main()
-    dirpath_Training = 'audio_files/Training_Set'
-    dirpath_Testing = 'audio_files/Evaluation_Set'
-    dirpath_Representative = 'audio_files/Representative'
-    Training_database = get_mels_dir(dirpath_Training)
-    Testing_database = get_mels_dir(dirpath_Testing)
-    reference_database = get_mels_dir(dirpath_Representative)
-    dist_matrix = create_training_dist_matrix(Training_database, reference_database)
-    print(dist_matrix)
+    # dirpath_Training = 'audio_files/Training_Set'
+    # dirpath_Testing = 'audio_files/Evaluation_Set'
+    # dirpath_Representative = 'audio_files/Representative'
+    # Training_database = get_mels_dir(dirpath_Training)
+    # Testing_database = get_mels_dir(dirpath_Testing)
+    # reference_database = get_mels_dir(dirpath_Representative)
+    # dist_matrix = create_training_dist_matrix(Training_database, reference_database)
+    # print(dist_matrix)
     print("Done")
  
